@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infinite Hill Bike Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background: linear-gradient(#87CEEB, #ffffff);
+    }
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    .controls button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      background: #555;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div class="controls">
+    <button onclick="bike.speed = -1.5">⏪ Back</button>
+    <button onclick="bike.speed = 0">⏸ Stop</button>
+    <button onclick="bike.speed = 1.5">⏩ Forward</button>
+  </div>
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;const hills = [];
+for (let i = 0; i < 10000; i++) {
+  hills.push(Math.sin(i * 0.05) * 60);
+}
+
+const bike = {
+  x: 100,
+  y: canvas.height / 2,
+  speed: 0,
+  pos: 0,
+};
+
+function drawBike(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(-20, 0, 10, 0, Math.PI * 2); // back wheel
+  ctx.arc(20, 0, 10, 0, Math.PI * 2); // front wheel
+  ctx.fill();
+
+  ctx.fillStyle = "blue";
+  ctx.fillRect(-10, -25, 20, 10); // body
+
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.arc(0, -35, 8, 0, Math.PI * 2); // head
+  ctx.fill();
+  ctx.restore();
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const roadY = canvas.height / 2;
+  ctx.beginPath();
+  ctx.moveTo(0, roadY + hills[Math.floor(bike.pos)]);
+
+  for (let x = 1; x < canvas.width; x++) {
+    let hillY = hills[Math.floor(bike.pos + x)] || 0;
+    ctx.lineTo(x, roadY + hillY);
+  }
+
+  ctx.strokeStyle = "#228B22";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  let offsetY = hills[Math.floor(bike.pos + bike.x)] || 0;
+  drawBike(bike.x, roadY + offsetY - 30);
+
+  bike.pos += bike.speed;
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+  </script>
+</body>
+</html>
